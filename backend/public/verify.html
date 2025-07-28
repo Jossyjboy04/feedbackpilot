@@ -1,0 +1,81 @@
+
+<!-- public/verify.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Verification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .message-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    a {
+      margin-top: 1rem;
+      display: inline-block;
+      text-decoration: none;
+      background-color: #007BFF;
+      color: white;
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+    }
+    a:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="message-box">
+    <h1 id="statusMsg">Verifying...</h1>
+    <a href="./admin-login.html" id="loginLink" style="display:none;">Click here to login</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status");
+
+    const msg = document.getElementById("statusMsg");
+    const loginLink = document.getElementById("loginLink");
+
+    if (status === "success") {
+      msg.textContent = "✅ Your email has been verified!";
+      msg.className = "success";
+      loginLink.style.display = "inline-block";
+    } else if (status === "invalid") {
+      msg.textContent = "❌ Invalid or expired verification link.";
+      msg.className = "error";
+    } else if (status === "resent") {
+  msg.textContent = "⚠️ Link expired. A new verification link has been sent to your email.";
+  msg.className = "error";
+}else if (status === "wait") {
+  msg.textContent = "⚠️ You've requested a new link too recently. Please wait a few minutes.";
+  msg.className = "error";
+}
+
+     else {
+      msg.textContent = "❌ Verification failed.";
+      msg.className = "error";
+    }
+  </script>
+</body>
+</html>
