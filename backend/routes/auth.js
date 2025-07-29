@@ -7,18 +7,49 @@ const crypto = require("crypto");
 const AdminUser = require("../models/AdminUser");
 const sendVerificationEmail = require("../utils/sendVerificationEmail");
 
-// ✅ Register Admin
+// ✅ Register Admin (with resend if already exists but not verified)
 router.post("/register", async (req, res) => {
   console.log("🟢 Received register data:", req.body);
 
   const { email, password, fullName, username } = req.body;
 
   try {
-    const existingUser = await AdminUser.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+    let existingUser = await AdminUser.findOne({ email });
 
+    if (existingUser) {
+      if (!existingUser.isVerified) {
+        const now = new Date();
+        const lastSent = existingUser.verificationCooldown || new Date(0);
+        const cooldownMinutes = 5;
+
+        if ((now - lastSent) < cooldownMinutes * 60 * 1000) {
+          return res.status(429).json({
+            message: "Verification link recently sent. Try again in a few minutes.",
+          });
+        }
+
+        // Generate new token
+        const newToken = crypto.randomBytes(32).toString("hex");
+        const tokenExpires = new Date(now.getTime() + 60 * 60 * 1000); // 1hr
+
+        existingUser.verificationToken = newToken;
+        existingUser.verificationTokenExpires = tokenExpires;
+        existingUser.verificationCooldown = now;
+        await existingUser.save();
+
+        await sendVerificationEmail(email, newToken);
+
+        return res.status(200).json({
+          message: "User already exists but is unverified. New verification link sent.",
+        });
+      }
+
+      // Already verified user
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // New user
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     const verificationCooldown = new Date(); // now
@@ -35,7 +66,6 @@ router.post("/register", async (req, res) => {
     });
 
     await newUser.save();
-
     await sendVerificationEmail(email, verificationToken);
 
     res.status(201).json({ message: "Admin registered. Please verify your email." });
@@ -82,24 +112,23 @@ router.get("/verify-email/:token", async (req, res) => {
 
     const now = new Date();
 
-    // ✅ If already verified
+    // Already verified
     if (user.isVerified) {
       return res.redirect("/verify.html?status=success");
     }
 
-    // ✅ If token expired
+    // Token expired
     if (user.verificationTokenExpires < now) {
       const lastSent = user.verificationCooldown || new Date(0);
       const delayMinutes = 5;
 
       if ((now - lastSent) < delayMinutes * 60 * 1000) {
-        // Delay not passed
         return res.redirect("/verify.html?status=wait");
       }
 
-      // ✅ Generate new token
+      // Generate and send new token
       const newToken = crypto.randomBytes(32).toString("hex");
-      const newExpiry = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour
+      const newExpiry = new Date(now.getTime() + 60 * 60 * 1000);
 
       user.verificationToken = newToken;
       user.verificationTokenExpires = newExpiry;
@@ -107,11 +136,10 @@ router.get("/verify-email/:token", async (req, res) => {
       await user.save();
 
       await sendVerificationEmail(user.email, newToken);
-
       return res.redirect("/verify.html?status=resent");
     }
 
-    // ✅ If token is valid
+    // Valid token
     user.isVerified = true;
     user.verificationToken = null;
     user.verificationTokenExpires = null;
