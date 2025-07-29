@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/AdminUser");
-
-const DEV_SECRET = "mysecret"; // 🔐 Hardcoded dev secret (or put in .env for safety)
+const DEV_SECRET = process.env.DEV_SECRET;
+ // 🔐 Hardcoded dev secret (or put in .env for safety)
 
 // TEMP DEV ROUTE: Delete all users securely
 router.delete("/reset-users", async (req, res) => {
