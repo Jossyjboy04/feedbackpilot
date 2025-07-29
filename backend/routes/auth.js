@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const AdminUser = require("../models/adminuser");
+const AdminUser = require("../models/AdminUser");
 const sendVerificationEmail = require("../utils/sendVerificationEmail");
 
 // ✅ Register Admin
