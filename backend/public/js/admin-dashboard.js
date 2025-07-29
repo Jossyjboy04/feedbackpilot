@@ -31,7 +31,7 @@ if (!adminId) {
   console.log("✅ adminId found:", adminId);
 }
 
-    const feedbackLink = `${window.location.origin}/feedback.html?admin=${adminId}`;
+    const feedbackLink = `https://feedbackpilot.onrender.com/feedback.html?admin=${adminId}`;
     feedbackLinkInput.value = feedbackLink;
 
     copyBtn.addEventListener("click", () => {
