@@ -20,8 +20,16 @@ if (!token) {
     </a>`;
 } else {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const adminId = payload.userId || payload.id;
+    // const payload = JSON.parse(atob(token.split('.')[1]));
+    // const adminId = payload.userId || payload.id;
+const payload = JSON.parse(atob(token.split('.')[1]));
+console.log("🧠 Decoded JWT payload:", payload);
+const adminId = payload.id || payload.userId;
+if (!adminId) {
+  console.error("❌ Missing adminId in token payload!");
+} else {
+  console.log("✅ adminId found:", adminId);
+}
 
     const feedbackLink = `${window.location.origin}/feedback.html?admin=${adminId}`;
     feedbackLinkInput.value = feedbackLink;
