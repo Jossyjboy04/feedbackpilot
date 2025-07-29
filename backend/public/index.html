@@ -2,38 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Submit Feedback</title>
-  <link rel="stylesheet" href="./css/style.css" />
+  <title>Admin Register | FeedbackPilot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./css/admin-register.css" />
 </head>
 <body>
-  <div class="container">
-    <h2>📝 Share Your Feedback</h2>
-    <p id="status"></p>
-
-    <form id="feedbackForm" enctype="multipart/form-data">
-      <input type="text" id="name" name="name" placeholder="Your name (optional)" />
-      <input type="email" id="email" name="email" placeholder="Your email" required />
-      <input type="tel" id="phone" name="phone" placeholder="Phone number" />
+  <div class="register-box">
+    <h2>Admin Registration</h2>
+    <form id="registerForm">
+      <input type="text" id="fullName" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="text" id="username" placeholder="Username" required />
       
-      <select name="rating" required>
-        <option value="">Rate your experience</option>
-        <option value="5">⭐️⭐️⭐️⭐️⭐️ Excellent</option>
-        <option value="4">⭐️⭐️⭐️⭐️ Good</option>
-        <option value="3">⭐️⭐️⭐️ Average</option>
-        <option value="2">⭐️⭐️ Poor</option>
-        <option value="1">⭐️ Terrible</option>
-      </select>
+      <div class="password-container">
+        <input type="password" id="password" placeholder="Password" required />
+        <span id="togglePassword">👁️</span>
+      </div>
 
-      <textarea id="message" name="message" rows="5" placeholder="Write your feedback..." required></textarea>
-
-      <label for="screenshot">Attach a screenshot (optional)</label>
-      <input type="file" id="screenshot" name="screenshot" accept="image/*" />
-
-      <button type="submit">Submit Feedback</button>
+      <button type="submit">Register</button>
     </form>
+    <p id="message"></p>
+    <p>Already have an account? <a href="./admin-login.html">Login here</a></p>
   </div>
 
-  <script src="./js/form.js"></script>
+  <script src="./js/admin-register.js"></script>
 </body>
 </html>
