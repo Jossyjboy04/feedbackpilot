@@ -4,7 +4,6 @@ const passwordInput = document.getElementById("password");
 const togglePassword = document.getElementById("togglePassword");
 const rememberMe = document.getElementById("rememberMe");
 
-// Auto-fill username if remembered
 window.addEventListener("DOMContentLoaded", () => {
   const savedUsername = localStorage.getItem("rememberedUsername");
   if (savedUsername) {
@@ -25,7 +24,11 @@ form.addEventListener("submit", async (e) => {
   }
 
   try {
-    const res = await fetch("/api/auth/login", {
+    const apiBase = location.origin.includes("localhost")
+      ? "http://localhost:5000"
+      : location.origin;
+
+    const res = await fetch(`${apiBase}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -48,11 +51,10 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    // Save token and ID
     localStorage.setItem("token", data.token);
+    localStorage.setItem("adminToken", data.token); // This line is critical
     localStorage.setItem("adminId", data.adminId);
 
-    // Handle Remember Me
     if (rememberMe.checked) {
       localStorage.setItem("rememberedUsername", username);
     } else {
@@ -66,7 +68,6 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// 👁 Toggle password visibility
 togglePassword.addEventListener("click", () => {
   const type = passwordInput.type === "password" ? "text" : "password";
   passwordInput.type = type;
