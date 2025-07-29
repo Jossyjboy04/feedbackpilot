@@ -12,24 +12,26 @@ form.addEventListener("submit", async (e) => {
   const password = passwordInput.value;
 
   try {
-    const baseURL = window.location.origin;
-const res = await fetch(`${baseURL}/api/auth/register`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ fullName, email, username, password }),
-});
+    const res = await fetch(`/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fullName, email, username, password }),
+    });
 
     const data = await res.json();
 
-    if (!res.ok) {
-  messageBox.style.color = "red";
-  messageBox.textContent = data.message || "User already exists" || "Registration failed";
-}
-else {
+    if (res.status === 429) {
+      messageBox.style.color = "orange";
+      messageBox.textContent = "Too many requests. Please wait before trying again.";
+    } else if (!res.ok) {
+      messageBox.style.color = "red";
+      messageBox.textContent = data.message || "Registration failed.";
+    } else {
       messageBox.style.color = "green";
       messageBox.textContent = "✅ Registered successfully! Check your mail for verification link.";
       form.reset();
     }
+
   } catch (err) {
     console.error("Registration error:", err);
     messageBox.style.color = "red";

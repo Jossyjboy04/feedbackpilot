@@ -17,10 +17,10 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const username = document.getElementById("username").value.trim();
-  const password = passwordInput.value;
+  const password = passwordInput.value.trim();
 
   if (!username || !password) {
-    errorText.textContent = "Both fields are required" || "invalid credentials";
+    errorText.textContent = "Both username and password are required.";
     return;
   }
 
@@ -33,14 +33,23 @@ form.addEventListener("submit", async (e) => {
 
     const data = await res.json();
 
+    if (res.status === 403) {
+      errorText.textContent = "Account not verified. Check your email.";
+      return;
+    }
+
+    if (res.status === 401 || res.status === 404) {
+      errorText.textContent = "Invalid credentials. Try again.";
+      return;
+    }
+
     if (!res.ok) {
-      errorText.textContent = data.error || "Wrong password or details not found";
+      errorText.textContent = data.message || "Login failed. Try again.";
       return;
     }
 
     // Save token and ID
     localStorage.setItem("token", data.token);
-    localStorage.setItem("adminToken", data.token);
     localStorage.setItem("adminId", data.adminId);
 
     // Handle Remember Me
@@ -57,9 +66,9 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// Toggle password
+// 👁 Toggle password visibility
 togglePassword.addEventListener("click", () => {
   const type = passwordInput.type === "password" ? "text" : "password";
   passwordInput.type = type;
-  togglePassword.textContent = type === "password" ? "👁️" : "x";
+  togglePassword.textContent = type === "password" ? "👁️" : "🙈";
 });
