@@ -1,16 +1,29 @@
 const token = localStorage.getItem("adminToken");
 const container = document.getElementById("feedbackContainer");
 const logoutBtn = document.getElementById("logoutBtn");
+const loginBtn = document.getElementById("loginBtn"); // 👈 Add this if you have a login link somewhere
 const feedbackLinkInput = document.getElementById("feedbackLink");
 const copyBtn = document.getElementById("copyLinkBtn");
 
-// ✅ Logout Handler
-logoutBtn.addEventListener("click", () => {
-  localStorage.removeItem("adminToken");
-  window.location.href = "admin-login.html";
-});
+// ✅ Toggle UI Based on Auth
+if (token) {
+  if (loginBtn) loginBtn.style.display = "none";
+  if (logoutBtn) logoutBtn.style.display = "inline-block";
+} else {
+  if (loginBtn) loginBtn.style.display = "inline-block";
+  if (logoutBtn) logoutBtn.style.display = "none";
+}
 
-// ✅ Token Check
+// ✅ Logout Handler
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminId");
+    window.location.href = "admin-login.html";
+  });
+}
+
+// ✅ Token Check for Feedback Loading
 if (!token) {
   container.innerHTML = `
     <p>You are not logged in.</p>
@@ -26,10 +39,12 @@ if (!token) {
     const feedbackLink = `${window.location.origin}/feedback.html?admin=${adminId}`;
     feedbackLinkInput.value = feedbackLink;
 
-    copyBtn.addEventListener("click", () => {
-      navigator.clipboard.writeText(feedbackLink);
-      alert("📋 Feedback link copied!");
-    });
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(feedbackLink);
+        alert("📋 Feedback link copied!");
+      });
+    }
 
     fetch("/api/feedback", {
       method: "GET",
